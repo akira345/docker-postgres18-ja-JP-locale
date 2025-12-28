@@ -26,10 +26,10 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "{name}=branch::${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
-      - name: Set BranchName
-        run: echo "BRANCH_NAME=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_ENV
+#      - name: Set BranchName
+#        run: echo "BRANCH_NAME=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_ENV
 
       - name: checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
@@ -52,11 +52,11 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGENAME }}:latest
 
-      - name: Build and push(release-${{ env.BRANCH_NAME }})
+      - name: Build and push(release branch)
         if: (!(contains(github.ref, 'main') || contains(github.ref, 'master')))
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGENAME }}:release-${{ env.BRANCH_NAME }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGENAME }}:release-${{ steps.extract_branch.outputs.branch }}
