@@ -52,7 +52,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGENAME }}:latest
 
-      - name: Build and push(release branch)
+      - name: Build and push(release-${{ steps.extract_branch.outputs.branch }})
         if: (!(contains(github.ref, 'main') || contains(github.ref, 'master')))
         uses: docker/build-push-action@v6
         with:
